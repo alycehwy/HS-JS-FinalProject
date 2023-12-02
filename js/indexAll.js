@@ -1,4 +1,7 @@
 const productList = document.querySelector('.productWrap');
+const productSelect = document.querySelector('.productSelect');
+
+let productData = [];
 
 // initialize
 function init(){
@@ -9,7 +12,8 @@ function init(){
 function getApiProductData(){
     axios.get(`${customerUrl}/products`)
         .then(res => {
-            renderProductList(res.data.products);
+            productData = res.data.products
+            renderProductList(productData);
         })
         .catch(err => console.error(err.response.data.message))
 }
@@ -30,4 +34,18 @@ function renderProductList(data){
     
 }
 
+// product list filter
+function filterProductList(){
+    // if selected '全部', render all data
+    if(this.value === '全部'){
+        renderProductList(productData);
+        return
+    }
+
+    // filter selected category then render
+    const filterproductData = productData.filter(({category}) => category === this.value);
+    renderProductList(filterproductData);
+}
+
+productSelect.addEventListener('change',filterProductList);
 init();
