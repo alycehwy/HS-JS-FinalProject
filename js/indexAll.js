@@ -1,6 +1,8 @@
 const productList = document.querySelector('.productWrap');
 const productSelect = document.querySelector('.productSelect');
 const cartList = document.querySelector('.shoppingCart-table tbody');
+const cartTotalAmount = document.querySelector('.cartTotalAmount');
+const cartDelAllBtn = document.querySelector('.discardAllBtn');
 
 let productData = [];
 
@@ -52,13 +54,13 @@ function filterProductList(){
 function getApiCartData(){
     axios.get(`${customerUrl}/carts`)
         .then(res => {
-            renderCartList(res.data.carts);
+            renderCartList(res.data.carts,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
 // Cart - render cart list
-function renderCartList(data){
+function renderCartList(data,totalAmount){
     cartList.innerHTML = data.reduce((sum,item) => {
         const itemProduct = item.product;
         return sum += 
@@ -73,12 +75,15 @@ function renderCartList(data){
             <td>${item.quantity}</td>
             <td>NT$${itemProduct.price * item.quantity}</td>
             <td class="discardBtn">
-                <a href="#" class="material-icons">
+                <a href="#" class="material-icons" data-id="${item.id}">
                     clear
                 </a>
             </td>
         </tr>`
     },'');
+
+    // update total amount
+    cartTotalAmount.textContent = `NT$${totalAmount}`;
 }
 
 // Cart - add product to cart
@@ -101,13 +106,50 @@ function postApiCartItem(id){
         }
     }
     axios.post(`${customerUrl}/carts`,itemObj)
-    .then(res => {
-        renderCartList(res.data.carts);
-    })
-    .catch(err => console.error(err.response.data.message || err.message));
+        .then(res => {
+            renderCartList(res.data.carts,res.data.finalTotal);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Cart - delete one item from cart
+function delCartItem(event){
+    event.preventDefault();
+
+    if(!event.target.dataset.id){
+        return
+    }
+
+    delApiCartItem(event.target.dataset.id);
+}
+
+// Cart - API - delete cart one item
+function delApiCartItem(id){
+    axios.delete(`${customerUrl}/carts/${id}`)
+        .then(res => {
+            renderCartList(res.data.carts,res.data.finalTotal);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Cart - delet all item from cart
+function delCartAll(event){
+    event.preventDefault();
+    delApiCartAll();
+}
+
+// Cart - API - delete cart all item
+function delApiCartAll(){
+    axios.delete(`${customerUrl}/carts`)
+        .then(res => {
+            renderCartList(res.data.carts,res.data.finalTotal);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
 }
 
 
 productSelect.addEventListener('change',filterProductList);
 productList.addEventListener('click',addProductToCart);
+cartList.addEventListener('click',delCartItem);
+cartDelAllBtn.addEventListener('click',delCartAll);
 init();

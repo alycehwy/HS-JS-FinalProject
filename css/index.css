@@ -855,3 +855,9 @@ body {
 }
 
 /*# sourceMappingURL=all.css.map */
+
+
+.shoppingCart-table tbody tr:first-child,
+.shoppingCart-table tbody tr:last-child {
+    border-bottom: 1px solid #B9B9B9;
+}
