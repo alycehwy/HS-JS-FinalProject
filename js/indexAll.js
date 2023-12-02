@@ -105,6 +105,7 @@ function postApiCartItem(id){
             "quantity": 1
         }
     }
+
     axios.post(`${customerUrl}/carts`,itemObj)
         .then(res => {
             renderCartList(res.data.carts,res.data.finalTotal);
@@ -147,9 +148,39 @@ function delApiCartAll(){
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
+// Order - get order information and send order
+function addOrder(event){
+    event.preventDefault();
+
+    const inputs = this.querySelectorAll('.orderInfo-input');
+    const orderInfo = {};
+    inputs.forEach(input => {
+        orderInfo[input.dataset.inputkey] = input.value;
+    });
+
+    postApiOrder(orderInfo);
+}
+
+
+// Order - API - post order to server
+function postApiOrder(info){
+    const itemObj = {
+        "data": {
+            "user": info
+        }
+    }
+
+    axios.post(`${customerUrl}/orders`,itemObj)
+        .then(res => {
+            alert(`訂單已成功送出！\n訂單編號：${res.data.id}`);
+            renderCartList([],0);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
 
 productSelect.addEventListener('change',filterProductList);
 productList.addEventListener('click',addProductToCart);
 cartList.addEventListener('click',delCartItem);
 cartDelAllBtn.addEventListener('click',delCartAll);
+orderInfoForm.addEventListener('submit',addOrder);
 init();
