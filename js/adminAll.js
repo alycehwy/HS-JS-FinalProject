@@ -16,9 +16,8 @@ function init(){
 function getApiOrderData(){
     axios.get(`${adminUrl}/orders`,auth)
         .then(res => {
-            const data = res.data.orders;
-            renderOrderList(data);
-            getC3Data(data);
+            renderOrderList(res.data.orders);
+            getC3Data(res.data.orders);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -93,6 +92,7 @@ function delApiOrderItem(id){
     axios.delete(`${adminUrl}/orders/${id}`,auth)
         .then(res => {
             renderOrderList(res.data.orders);
+            renderC3Chart(res.data.orders)
             alert(`已成功刪除訂單：${id}`);
         })
         .catch(err => console.error(err.response.data.message || err.message));
@@ -108,7 +108,8 @@ function delOrderAll(event){
 function delApiOrderAll(){
     axios.delete(`${adminUrl}/orders`,auth)
         .then(res => {
-            renderOrderList(res.data.orders);
+            renderOrderList([]);
+            renderC3Chart([])
             alert(`已成功刪除全部訂單！`);
         })
         .catch(err => console.error(err.response.data.message || err.message));
@@ -142,7 +143,7 @@ function getC3Data(data){
         dataToC3.push(['其他',otherIncomeSum]);
     }
     
-    renderC3Chart(dataToC3)
+    renderC3Chart(dataToC3);
 }
 
 // Order - render C3 chart
