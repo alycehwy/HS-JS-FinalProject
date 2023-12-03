@@ -16,7 +16,9 @@ function init(){
 function getApiOrderData(){
     axios.get(`${adminUrl}/orders`,auth)
         .then(res => {
-            renderOrderList(res.data.orders);
+            const data = res.data.orders;
+            renderOrderList(data);
+            getC3Data(data);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -40,7 +42,7 @@ function renderOrderList(data){
             <td>${productItems}</td>
             <td>${orderDate}</td>
             <td class="orderStatus">
-                <a href="#" class="orderStatus-Btn" data-id="${item.id}" data-status="${item.paid}">${item.paid ? '已處理' : '未處理'}</a>
+                <a href="#" class="js-orderStatus-Btn" data-id="${item.id}" data-status="${item.paid}">${item.paid ? '已處理' : '未處理'}</a>
             </td>
             <td>
                 <input type="button" class="delSingleOrder-Btn" data-id="${item.id}" value="刪除">
@@ -53,7 +55,8 @@ function renderOrderList(data){
 function modifyOrderStatus(event){
     event.preventDefault();
 
-    if(event.target.classList.value !== 'orderStatus-Btn') return;
+    // check if click on js-orderStatus-Btn
+    if(event.target.getAttribute('class') !== 'js-orderStatus-Btn') return;
     const id =  event.target.dataset.id;
     const status = event.target.dataset.status === 'true' ;
     putApiOrderStatus(id,status);
@@ -79,7 +82,8 @@ function putApiOrderStatus(id,status){
 function delOrderItem(event){
     event.preventDefault();
 
-    if(event.target.classList.value !== 'delSingleOrder-Btn') return;
+    // check if click on delSingleOrder-Btn
+    if(event.target.getAttribute('class') !== 'delSingleOrder-Btn') return;
     const id  = event.target.dataset.id;
     delApiOrderItem(id);
 }
@@ -110,27 +114,53 @@ function delApiOrderAll(){
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
+// Order - get C3 chart data
+function getC3Data(data){
+    const incomeObj = {};
+    // get each product's income
+    data.forEach(({products}) => {
+        products.forEach(item => {
+            !incomeObj[item.title] ? incomeObj[item.title] = item.price * item.quantity : incomeObj[item.title] += item.price * item.quantity;
+        });
+    });
+
+    // sort the income
+    const sortByIncome = Object.keys(incomeObj).sort((a,b) => incomeObj[b] - incomeObj[a]);
+
+    // convert data format for C3 chart
+    const dataToC3 = [];
+    let otherIncomeSum = 0;
+    // if income items > 3, need to sum the rest item's income
+    sortByIncome.forEach((item,idx) => {
+        if(idx < 3){
+            dataToC3.push([item,incomeObj[item]]);
+        }else{
+            otherIncomeSum += incomeObj[item];
+        }
+    });
+    if(otherIncomeSum !== 0){
+        dataToC3.push(['其他',otherIncomeSum]);
+    }
+    
+    renderC3Chart(dataToC3)
+}
+
+// Order - render C3 chart
+function renderC3Chart(c3Data){
+    const chart = c3.generate({
+        bindto: '#chart',
+        data: {
+            type: "pie",
+            columns: c3Data            
+        },
+        color: {
+            pattern: ['#301E5F','#5434A7','#9D7FEA','#DACBFF']
+        },
+        
+    });
+}
+
 orderList.addEventListener('click',modifyOrderStatus);
 orderList.addEventListener('click',delOrderItem);
 discardAllBtn.addEventListener('click',delOrderAll);
 init();
-
-// C3.js
-let chart = c3.generate({
-    bindto: '#chart', // HTML 元素綁定
-    data: {
-        type: "pie",
-        columns: [
-        ['Louvre 雙人床架', 1],
-        ['Antony 雙人床架', 2],
-        ['Anty 雙人床架', 3],
-        ['其他', 4],
-        ],
-        colors:{
-            "Louvre 雙人床架":"#DACBFF",
-            "Antony 雙人床架":"#9D7FEA",
-            "Anty 雙人床架": "#5434A7",
-            "其他": "#301E5F",
-        }
-    },
-});

@@ -1,7 +1,7 @@
 const productList = document.querySelector('.productWrap');
 const productSelect = document.querySelector('.productSelect');
 const cartList = document.querySelector('.shoppingCart-table tbody');
-const cartTotalAmount = document.querySelector('.cartTotalAmount');
+const cartTotalAmount = document.querySelector('.js-cartTotalAmount');
 const cartDelAllBtn = document.querySelector('.discardAllBtn');
 
 let productData = [];
@@ -90,6 +90,7 @@ function renderCartList(data,totalAmount){
 function addProductToCart(event){
     event.preventDefault();
 
+    // check if click on addCardBtn
     if(event.target.getAttribute('class') !== 'addCardBtn') return;
     postApiCartItem(event.target.dataset.id);
 }
@@ -114,8 +115,9 @@ function postApiCartItem(id){
 function delCartItem(event){
     event.preventDefault();
 
+    // check if click on discardBtn > a 
+    if(event.target.parentNode.className !== 'discardBtn') return;
     const id  = event.target.dataset.id;
-    if(!id) return;
     delApiCartItem(id);
 }
 
