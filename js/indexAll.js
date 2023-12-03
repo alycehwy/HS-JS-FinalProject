@@ -90,10 +90,7 @@ function renderCartList(data,totalAmount){
 function addProductToCart(event){
     event.preventDefault();
 
-    if(event.target.getAttribute('class') !== 'addCardBtn'){
-        return
-    }
-
+    if(event.target.getAttribute('class') !== 'addCardBtn') return;
     postApiCartItem(event.target.dataset.id);
 }
 
@@ -117,11 +114,9 @@ function postApiCartItem(id){
 function delCartItem(event){
     event.preventDefault();
 
-    if(!event.target.dataset.id){
-        return
-    }
-
-    delApiCartItem(event.target.dataset.id);
+    const id  = event.target.dataset.id;
+    if(!id) return;
+    delApiCartItem(id);
 }
 
 // Cart - API - delete cart one item

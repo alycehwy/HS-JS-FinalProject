@@ -39,7 +39,7 @@ function renderOrderList(data){
             <td>${productItems}</td>
             <td>${orderDate}</td>
             <td class="orderStatus">
-                <a href="#">${item.paid ? '已處理' : '未處理'}</a>
+                <a href="#" data-id="${item.id}" data-status="${item.paid}">${item.paid ? '已處理' : '未處理'}</a>
             </td>
             <td>
                 <input type="button" class="delSingleOrder-Btn" value="刪除">
@@ -48,6 +48,33 @@ function renderOrderList(data){
     },'');
 }
 
+// Order - modify order status
+function modifyOrderStatus(event){
+    event.preventDefault();
+
+    const id =  event.target.dataset.id;
+    const status = event.target.dataset.status === 'true' ;
+    if(!id) return;
+    putApiOrderStatus(id,status);
+}
+
+// Order - API - (PUT)modify order status
+function putApiOrderStatus(id,status){
+    const itemObj = {
+        "data": {
+            "id": id,
+            "paid": !status
+        }
+    }
+
+    axios.put(`${adminUrl}/orders`,itemObj,auth)
+        .then(res => {
+            renderOrderList(res.data.orders);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+orderList.addEventListener('click',modifyOrderStatus);
 init();
 
 // C3.js
