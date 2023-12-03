@@ -1,3 +1,55 @@
+const orderList = document.querySelector('.orderPage-table tbody');
+
+const auth = {
+    headers: {
+        'Authorization': token
+    }
+};
+
+// initialize
+function init(){
+    getApiOrderData();
+}
+
+// Order - API - get all order data
+function getApiOrderData(){
+    axios.get(`${adminUrl}/orders`,auth)
+        .then(res => {
+            renderOrderList(res.data.orders);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Order - render order list
+function renderOrderList(data){
+    orderList.innerHTML = data.reduce((sum,item) => {
+        const orderDate = new Date(item.createdAt * 1000).toLocaleDateString('en-ZA');
+        const productItems = item.products.reduce((sum,item) => {
+            return sum += `<p>${item.title} * ${item.quantity}</p>`
+        },'')
+        return sum += 
+        `<tr>
+            <td>${item.id}</td>
+            <td>
+                <p>${item.user.name}</p>
+                <p>${item.user.tel}</p>
+            </td>
+            <td>${item.user.address}</td>
+            <td>${item.user.email}</td>
+            <td>${productItems}</td>
+            <td>${orderDate}</td>
+            <td class="orderStatus">
+                <a href="#">${item.paid ? '已處理' : '未處理'}</a>
+            </td>
+            <td>
+                <input type="button" class="delSingleOrder-Btn" value="刪除">
+            </td>
+        </tr>`
+    },'');
+}
+
+init();
+
 // C3.js
 let chart = c3.generate({
     bindto: '#chart', // HTML 元素綁定
