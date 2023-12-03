@@ -143,7 +143,7 @@ function delApiCartAll(){
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
-// Order - get order information and send order
+// Order - get form information and send order to server
 function addOrder(event){
     event.preventDefault();
 
@@ -157,7 +157,7 @@ function addOrder(event){
 }
 
 
-// Order - API - post order to server
+// Order - API - post order info to server
 function postApiOrder(info){
     const itemObj = {
         "data": {

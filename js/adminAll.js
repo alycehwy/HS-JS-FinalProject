@@ -1,4 +1,5 @@
 const orderList = document.querySelector('.orderPage-table tbody');
+const discardAllBtn = document.querySelector('.discardAllBtn');
 
 const auth = {
     headers: {
@@ -39,10 +40,10 @@ function renderOrderList(data){
             <td>${productItems}</td>
             <td>${orderDate}</td>
             <td class="orderStatus">
-                <a href="#" data-id="${item.id}" data-status="${item.paid}">${item.paid ? '已處理' : '未處理'}</a>
+                <a href="#" class="orderStatus-Btn" data-id="${item.id}" data-status="${item.paid}">${item.paid ? '已處理' : '未處理'}</a>
             </td>
             <td>
-                <input type="button" class="delSingleOrder-Btn" value="刪除">
+                <input type="button" class="delSingleOrder-Btn" data-id="${item.id}" value="刪除">
             </td>
         </tr>`
     },'');
@@ -52,9 +53,9 @@ function renderOrderList(data){
 function modifyOrderStatus(event){
     event.preventDefault();
 
+    if(event.target.classList.value !== 'orderStatus-Btn') return;
     const id =  event.target.dataset.id;
     const status = event.target.dataset.status === 'true' ;
-    if(!id) return;
     putApiOrderStatus(id,status);
 }
 
@@ -74,7 +75,44 @@ function putApiOrderStatus(id,status){
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
+// Order - delete one item from order
+function delOrderItem(event){
+    event.preventDefault();
+
+    if(event.target.classList.value !== 'delSingleOrder-Btn') return;
+    const id  = event.target.dataset.id;
+    delApiOrderItem(id);
+}
+
+// Order - API - delete order one item
+function delApiOrderItem(id){
+    axios.delete(`${adminUrl}/orders/${id}`,auth)
+        .then(res => {
+            renderOrderList(res.data.orders);
+            alert(`已成功刪除訂單：${id}`);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Order - delet all item from order
+function delOrderAll(event){
+    event.preventDefault();
+    delApiOrderAll();
+}
+
+// Order - API - delete order all item
+function delApiOrderAll(){
+    axios.delete(`${adminUrl}/orders`,auth)
+        .then(res => {
+            renderOrderList(res.data.orders);
+            alert(`已成功刪除全部訂單！`);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
 orderList.addEventListener('click',modifyOrderStatus);
+orderList.addEventListener('click',delOrderItem);
+discardAllBtn.addEventListener('click',delOrderAll);
 init();
 
 // C3.js
