@@ -1,6 +1,8 @@
 const productList = document.querySelector('.productWrap');
 const productSelect = document.querySelector('.productSelect');
 const cartList = document.querySelector('.shoppingCart-table tbody');
+const shoppingCartTable = document.querySelector('.shoppingCart-table');
+const shoppingCartEmpty = document.querySelector('.shoppingCart-empty');
 const cartTotalAmount = document.querySelector('.js-cartTotalAmount');
 const cartDelAllBtn = document.querySelector('.discardAllBtn');
 const alartMsg = orderInfoForm.querySelectorAll('[data-message]');
@@ -25,12 +27,25 @@ function getApiProductData(){
 
 // Product - render product list
 function renderProductList(data){
+    // create purchaseQty option html structure
+    let purchaseQtyOption = '';
+    for(let i = 1; i <= 10; i++){
+        purchaseQtyOption += `<option value="${i}">${i}</option>`;
+    }
+
+    // productList structure
     productList.innerHTML = data.reduce((sum,item) => {
         return sum += 
         `<li class="productCard">
             <h4 class="productType">新品</h4>
-            <img src="${item.images}" alt="">
+            <img src="${item.images}" alt="${item.title}">
             <a href="#" class="addCardBtn" data-id="${item.id}">加入購物車</a>
+            <div class="purchaseQty-box">
+                <label for="purchaseQty">購買數量:</label>
+                <select name="purchaseQty" id="purchaseQty" class="purchaseQty">
+                    ${purchaseQtyOption}
+                </select>
+            </div>
             <h3>${item.title}</h3>
             <del class="originPrice">NT$${thousandsComma(item.origin_price)}</del>
             <p class="nowPrice">NT$${thousandsComma(item.price)}</p>
@@ -62,13 +77,23 @@ function getApiCartData(){
 
 // Cart - render cart list
 function renderCartList(data,totalAmount){
+    // if cart is empty, show cart empty's img, hide cart list
+    if(data.length === 0){
+        shoppingCartEmpty.classList.remove('hide');
+        shoppingCartTable.classList.add('hide');
+        return
+    }
+
+    // if cart is not empty, hide cart empty's img, show cart list, and bulid the cart list
+    shoppingCartEmpty.classList.add('hide');
+    shoppingCartTable.classList.remove('hide');
     cartList.innerHTML = data.reduce((sum,item) => {
         const itemProduct = item.product;
         return sum += 
         `<tr>
             <td>
                 <div class="cardItem-title">
-                    <img src="${itemProduct.images}" alt="">
+                    <img src="${itemProduct.images}" alt=${itemProduct.title}">
                     <p>${itemProduct.title}</p>
                 </div>
             </td>
@@ -93,18 +118,22 @@ function addProductToCart(event){
 
     // check if click on addCardBtn
     if(event.target.getAttribute('class') !== 'addCardBtn') return;
-    postApiCartItem(event.target.dataset.id);
+
+    const id = event.target.dataset.id;
+    const productCard = event.target.parentNode;
+    const productQty = productCard.querySelector('.purchaseQty').value;
+    postApiCartItem(id,productQty);
 }
 
 // Cart - API - post to carts
-function postApiCartItem(id){
+function postApiCartItem(id,qty){
     const itemObj = {
         "data": {
             "productId": id,
-            "quantity": 1
+            "quantity": Number(qty)
         }
     }
-
+    
     axios.post(`${customerUrl}/carts`,itemObj)
         .then(res => {
             renderCartList(res.data.carts,res.data.finalTotal);
@@ -118,6 +147,7 @@ function delCartItem(event){
 
     // check if click on discardBtn > a 
     if(event.target.parentNode.className !== 'discardBtn') return;
+
     const id  = event.target.dataset.id;
     delApiCartItem(id);
 }
@@ -141,7 +171,7 @@ function delCartAll(event){
 function delApiCartAll(){
     axios.delete(`${customerUrl}/carts`)
         .then(res => {
-            renderCartList(res.data.carts,res.data.finalTotal);
+            renderCartList([],0);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }

@@ -830,8 +830,39 @@ body {
 
 /*# sourceMappingURL=all.css.map */
 
-
 .shoppingCart-table tbody tr:first-child,
 .shoppingCart-table tbody tr:last-child {
     border-bottom: 1px solid #B9B9B9;
+}
+
+.purchaseQty-box {
+    display: flex;
+
+}
+
+.purchaseQty {
+    width: 30%;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.shoppingCart-empty {
+    margin: 0 auto;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 30px;
+}
+
+.shoppingCart-empty p {
+    font-size: 1.25rem;
+}
+
+.shoppingCart-empty img {
+    width: 400px;
+}
+
+.shoppingCart-empty.hide, .shoppingCart-table.hide {
+    display: none;
 }
