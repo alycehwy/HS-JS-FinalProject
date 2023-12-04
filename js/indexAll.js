@@ -32,8 +32,8 @@ function renderProductList(data){
             <img src="${item.images}" alt="">
             <a href="#" class="addCardBtn" data-id="${item.id}">加入購物車</a>
             <h3>${item.title}</h3>
-            <del class="originPrice">NT$${item.origin_price}</del>
-            <p class="nowPrice">NT$${item.price}</p>
+            <del class="originPrice">NT$${thousandsComma(item.origin_price)}</del>
+            <p class="nowPrice">NT$${thousandsComma(item.price)}</p>
         </li>`
     },'');
 }
@@ -72,9 +72,9 @@ function renderCartList(data,totalAmount){
                     <p>${itemProduct.title}</p>
                 </div>
             </td>
-            <td>NT$${itemProduct.price}</td>
+            <td>NT$${thousandsComma(itemProduct.price)}</td>
             <td>${item.quantity}</td>
-            <td>NT$${itemProduct.price * item.quantity}</td>
+            <td>NT$${thousandsComma(itemProduct.price * item.quantity)}</td>
             <td class="discardBtn">
                 <a href="#" class="material-icons" data-id="${item.id}">
                     clear
@@ -84,7 +84,7 @@ function renderCartList(data,totalAmount){
     },'');
 
     // update total amount
-    cartTotalAmount.textContent = `NT$${totalAmount}`;
+    cartTotalAmount.textContent = `NT$${thousandsComma(totalAmount)}`;
 }
 
 // Cart - add product to cart
@@ -223,6 +223,11 @@ function validateForm(){
     };
 
     return validate(orderInfoForm, constraints);
+}
+
+// for amount displays thousand comma
+function thousandsComma(num){
+    return num.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
 
 productSelect.addEventListener('change',filterProductList);
