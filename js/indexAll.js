@@ -3,6 +3,7 @@ const productSelect = document.querySelector('.productSelect');
 const cartList = document.querySelector('.shoppingCart-table tbody');
 const cartTotalAmount = document.querySelector('.js-cartTotalAmount');
 const cartDelAllBtn = document.querySelector('.discardAllBtn');
+const alartMsg = orderInfoForm.querySelectorAll('[data-message]');
 
 let productData = [];
 
@@ -149,13 +150,27 @@ function delApiCartAll(){
 function addOrder(event){
     event.preventDefault();
 
+    // clear all alert message
+    alartMsg.forEach(item => item.textContent = '');
+    // validate form - if info is wrong, show alert message
+    const isAlert = validateForm();
+    if(isAlert){
+        Object.keys(isAlert).forEach(item => {
+            const alertElement = orderInfoForm.querySelector(`[data-message="${item}"]`)
+            const alertMsg = isAlert[item].toString();
+            alertElement.textContent = alertMsg;
+        })
+        return
+    }
+
+    // if info is okay, put all info into a obj, then send post to server
     const inputs = this.querySelectorAll('.orderInfo-input');
     const orderInfo = {};
-    inputs.forEach(input => {
-        orderInfo[input.dataset.inputkey] = input.value;
-    });
-
+    inputs.forEach(input => orderInfo[input.dataset.inputkey] = input.value);
     postApiOrder(orderInfo);
+
+    // reset form after submitting it successfully
+    orderInfoForm.reset();
 }
 
 
@@ -173,6 +188,41 @@ function postApiOrder(info){
             renderCartList([],0);
         })
         .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Order - validate form
+function validateForm(){
+    const constraints = {
+        "姓名": {
+            presence: {
+                message: "是必填欄位!"
+            }
+        },
+        "電話": {
+            presence: {
+                message: "是必填欄位!"
+            },
+            length: {
+                minimum: 8,
+                message: "號碼需超過 8 碼!"
+            }
+        },
+        "Email": {
+            presence: {
+                message: "是必填欄位!"
+            },
+            email: {
+                message: "格式有誤!"
+            }
+        },
+        "寄送地址": {
+            presence: {
+                message: "是必填欄位!"
+            }
+        }
+    };
+
+    return validate(orderInfoForm, constraints);
 }
 
 productSelect.addEventListener('change',filterProductList);
