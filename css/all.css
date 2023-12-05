@@ -866,3 +866,33 @@ body {
 .shoppingCart-empty.hide, .shoppingCart-table.hide {
     display: none;
 }
+
+.cardItem-quantity div {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+}
+
+.cardItem-quantity a {
+    text-decoration: none;
+    color: #000000;
+    padding: 5px;;
+}
+
+.cardItem-quantity a:hover {
+    color: #6A33F8;
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+}
+
+.cardItem-quantity span {
+    padding: 0 15px;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+}
+
+.productCard h3 {
+    font-size: 1.2rem;
+}
+
+

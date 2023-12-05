@@ -98,7 +98,13 @@ function renderCartList(data,totalAmount){
                 </div>
             </td>
             <td>NT$${thousandsComma(itemProduct.price)}</td>
-            <td>${item.quantity}</td>
+            <td class="cardItem-quantity">
+                <div>
+                    <a href="#" class="material-icons" data-action="minus" data-id="${item.id}" data-qty="${item.quantity}">remove</a>
+                    <span>${item.quantity}</span>
+                    <a href="#" class="material-icons" data-action="plus" data-id="${item.id}" data-qty="${item.quantity}">add</a>
+                </div>
+            </td>
             <td>NT$${thousandsComma(itemProduct.price * item.quantity)}</td>
             <td class="discardBtn">
                 <a href="#" class="material-icons" data-id="${item.id}">
@@ -172,6 +178,34 @@ function delApiCartAll(){
     axios.delete(`${customerUrl}/carts`)
         .then(res => {
             renderCartList([],0);
+        })
+        .catch(err => console.error(err.response.data.message || err.message));
+}
+
+// Cart - modify the quantity for product item
+function modifyCartItemQty(event){
+    event.preventDefault();
+
+    // check if click on cardItem-quantity btn
+    if(!event.target.getAttribute('data-action')) return;
+    const id = event.target.dataset.id;
+    let qty = event.target.dataset.qty;
+    event.target.dataset.action === 'plus' ? qty++ : qty-- ;
+    qty === 0 ? delApiCartItem(id) : patchApiQty(id,qty);
+}
+
+// Cart - API - patch for cart item's quantity
+function patchApiQty(id,qty){
+    const itemObj = {
+        "data": {
+            "id": id,
+            "quantity": Number(qty)
+        }
+    }
+
+    axios.patch(`${customerUrl}/carts`,itemObj)
+        .then(res => {
+            renderCartList(res.data.carts,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -263,6 +297,7 @@ function thousandsComma(num){
 productSelect.addEventListener('change',filterProductList);
 productList.addEventListener('click',addProductToCart);
 cartList.addEventListener('click',delCartItem);
+cartList.addEventListener('click',modifyCartItemQty);
 cartDelAllBtn.addEventListener('click',delCartAll);
 orderInfoForm.addEventListener('submit',addOrder);
 init();
