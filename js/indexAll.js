@@ -188,9 +188,12 @@ function modifyCartItemQty(event){
 
     // check if click on cardItem-quantity btn
     if(!event.target.getAttribute('data-action')) return;
+
     const id = event.target.dataset.id;
     let qty = event.target.dataset.qty;
     event.target.dataset.action === 'plus' ? qty++ : qty-- ;
+    // if qty is 0 => delete item
+    // if not patch api for modify quantity and re-render cart list
     qty === 0 ? delApiCartItem(id) : patchApiQty(id,qty);
 }
 
