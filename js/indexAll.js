@@ -27,6 +27,24 @@ function getApiProductData(){
 
 // Product - render product list
 function renderProductList(data){
+    // create productSelect options
+    // use Set to get category items => Each value can only occur once in a Set
+    const categorySet = new Set();
+    data.forEach(({category}) => categorySet.add(category));
+
+    // convert data to array to use the array method to build html structure
+    const categoryList = [...categorySet];
+    categoryList.unshift('全部');
+
+    // productSelect option structure
+    productSelect.innerHTML = categoryList.reduce((sum,item) => {
+        return sum += `<option value="${item}">${item}</option>`
+    },'');
+    
+    // make sure '全部' is default selected
+    productSelect.querySelector(`[value="全部"]`).setAttribute('selected','');
+    
+
     // create purchaseQty option html structure
     let purchaseQtyOption = '';
     for(let i = 1; i <= 10; i++){
