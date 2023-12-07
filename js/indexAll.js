@@ -8,6 +8,7 @@ const cartDelAllBtn = document.querySelector('.discardAllBtn');
 const alartMsg = orderInfoForm.querySelectorAll('[data-message]');
 
 let productData = [];
+let cartData = [];
 
 // initialize
 function init(){
@@ -19,7 +20,7 @@ function init(){
 function getApiProductData(){
     axios.get(`${customerUrl}/products`)
         .then(res => {
-            productData = res.data.products
+            productData = res.data.products;
             renderProductCategoryOption(productData);
             renderProductList(productData);
         })
@@ -90,7 +91,8 @@ function filterProductList(){
 function getApiCartData(){
     axios.get(`${customerUrl}/carts`)
         .then(res => {
-            renderCartList(res.data.carts,res.data.finalTotal);
+            cartData = res.data.carts;
+            renderCartList(cartData,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -162,7 +164,8 @@ function postApiCartItem(id,qty){
     
     axios.post(`${customerUrl}/carts`,itemObj)
         .then(res => {
-            renderCartList(res.data.carts,res.data.finalTotal);
+            cartData = res.data.carts;
+            renderCartList(cartData,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -182,7 +185,8 @@ function delCartItem(event){
 function delApiCartItem(id){
     axios.delete(`${customerUrl}/carts/${id}`)
         .then(res => {
-            renderCartList(res.data.carts,res.data.finalTotal);
+            cartData = res.data.carts;
+            renderCartList(cartData,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -197,6 +201,7 @@ function delCartAll(event){
 function delApiCartAll(){
     axios.delete(`${customerUrl}/carts`)
         .then(res => {
+            cartData = [];
             renderCartList([],0);
         })
         .catch(err => console.error(err.response.data.message || err.message));
@@ -228,7 +233,8 @@ function patchApiQty(id,qty){
 
     axios.patch(`${customerUrl}/carts`,itemObj)
         .then(res => {
-            renderCartList(res.data.carts,res.data.finalTotal);
+            cartData = res.data.carts;
+            renderCartList(cartData,res.data.finalTotal);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -236,6 +242,12 @@ function patchApiQty(id,qty){
 // Order - get form information and send order to server
 function addOrder(event){
     event.preventDefault();
+
+    // check if cartData is empty
+    if(cartData.length === 0){
+        alert('你的購物車空空的，先去選購吧！');
+        return
+    }
 
     // clear all alert message
     alartMsg.forEach(item => item.textContent = '');
