@@ -11,8 +11,8 @@ JavaScript 工程師養成直播班課程最終關卡。
 
 ## Demo
 
-[前台](https://alycehwy.github.io/HS-JS-FinalProject/)
-[後台](https://alycehwy.github.io/HS-JS-FinalProject/admin)
+- [前台](https://alycehwy.github.io/HS-JS-FinalProject/)
+- [後台](https://alycehwy.github.io/HS-JS-FinalProject/admin)
 
 ## Features
 
