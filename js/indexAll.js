@@ -39,7 +39,7 @@ function renderProductCategoryOption(data){
 
     // productSelect option structure
     productSelect.innerHTML = categoryList.reduce((sum,item) => {
-        return sum += `<option value="${item}">${item}</option>`
+        return sum + `<option value="${item}">${item}</option>`
     },'');
     
     // make sure '全部' is default selected
@@ -49,18 +49,18 @@ function renderProductCategoryOption(data){
 // Product - render product list
 function renderProductList(data){
     // create purchaseQty option html structure
-    let purchaseQtyOption = '';
+    let purchaseQtyOption;
     for(let i = 1; i <= 10; i++){
         purchaseQtyOption += `<option value="${i}">${i}</option>`;
     }
 
     // productList structure
     productList.innerHTML = data.reduce((sum,item) => {
-        return sum += 
+        return sum + 
         `<li class="productCard">
             <h4 class="productType">新品</h4>
             <img src="${item.images}" alt="${item.title}">
-            <a href="#" class="addCardBtn" data-id="${item.id}">加入購物車</a>
+            <a href="#" class="addCartBtn" data-id="${item.id}">加入購物車</a>
             <div class="purchaseQty-box">
                 <label for="purchaseQty">購買數量:</label>
                 <select name="purchaseQty" id="purchaseQty" class="purchaseQty">
@@ -75,7 +75,7 @@ function renderProductList(data){
 }
 
 // Product - product list filter
-function filterProductList(){
+function filterProductByCategory(){
     // if selected '全部', render all data
     if(this.value === '全部'){
         renderProductList(productData);
@@ -83,8 +83,8 @@ function filterProductList(){
     }
 
     // filter selected category then render
-    const filterproductData = productData.filter(({category}) => category === this.value);
-    renderProductList(filterproductData);
+    const filterCategory = productData.filter(({category}) => category === this.value);
+    renderProductList(filterCategory);
 }
 
 // Cart - API - get all cart data
@@ -111,7 +111,7 @@ function renderCartList(data,totalAmount){
     shoppingCartTable.classList.remove('hide');
     cartList.innerHTML = data.reduce((sum,item) => {
         const itemProduct = item.product;
-        return sum += 
+        return sum + 
         `<tr>
             <td>
                 <div class="cardItem-title">
@@ -144,12 +144,11 @@ function renderCartList(data,totalAmount){
 function addProductToCart(event){
     event.preventDefault();
 
-    // check if click on addCardBtn
-    if(event.target.getAttribute('class') !== 'addCardBtn') return;
+    // check if click on addCartBtn
+    if(event.target.getAttribute('class') !== 'addCartBtn') return;
 
     const id = event.target.dataset.id;
-    const productCard = event.target.parentNode;
-    const productQty = productCard.querySelector('.purchaseQty').value;
+    const productQty = event.target.parentNode.querySelector('.purchaseQty').value;
     postApiCartItem(id,productQty);
 }
 
@@ -214,16 +213,15 @@ function modifyCartItemQty(event){
     // check if click on cardItem-quantity btn
     if(!event.target.getAttribute('data-action')) return;
 
-    const id = event.target.dataset.id;
-    let qty = event.target.dataset.qty;
-    event.target.dataset.action === 'plus' ? qty++ : qty-- ;
+    const dataObj = event.target.dataset;
+    dataObj.action === 'plus' ? dataObj.qty++ : dataObj.qty-- ;
     // if qty is 0 => delete item
     // if not patch api for modify quantity and re-render cart list
-    qty === 0 ? delApiCartItem(id) : patchApiQty(id,qty);
+    qty === 0 ? delApiCartItem(dataObj.id) : patchApiCartItemQty(dataObj.id,dataObj.qty.qty);
 }
 
 // Cart - API - patch for cart item's quantity
-function patchApiQty(id,qty){
+function patchApiCartItemQty(id,qty){
     const itemObj = {
         "data": {
             "id": id,
@@ -240,17 +238,17 @@ function patchApiQty(id,qty){
 }
 
 // Order - get form information and send order to server
-function addOrder(event){
+function sendOrderInfo(event){
     event.preventDefault();
+    // clear all alert message
+    alartMsg.forEach(item => item.textContent = '');
 
     // check if cartData is empty
     if(cartData.length === 0){
-        alert('你的購物車空空的，先去選購吧！');
+        alert('您的購物車空空的，先去選購吧！');
         return
     }
 
-    // clear all alert message
-    alartMsg.forEach(item => item.textContent = '');
     // validate form - if info is wrong, show alert message
     const isAlert = validateForm();
     if(isAlert){
@@ -329,10 +327,10 @@ function thousandsComma(num){
     return num.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
 
-productSelect.addEventListener('change',filterProductList);
+productSelect.addEventListener('change',filterProductByCategory);
 productList.addEventListener('click',addProductToCart);
 cartList.addEventListener('click',delCartItem);
 cartList.addEventListener('click',modifyCartItemQty);
 cartDelAllBtn.addEventListener('click',delCartAll);
-orderInfoForm.addEventListener('submit',addOrder);
+orderInfoForm.addEventListener('submit',sendOrderInfo);
 init();

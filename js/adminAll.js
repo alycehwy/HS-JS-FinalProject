@@ -30,9 +30,9 @@ function renderOrderList(data){
     orderList.innerHTML = data.reduce((sum,item) => {
         const orderDate = new Date(item.createdAt * 1000).toLocaleDateString('en-ZA');
         const productItems = item.products.reduce((sum,item) => {
-            return sum += `<p>${item.title} * ${item.quantity}</p>`
+            return sum + `<p>${item.title} * ${item.quantity}</p>`
         },'')
-        return sum += 
+        return sum + 
         `<tr>
             <td>${item.id}</td>
             <td>
@@ -71,7 +71,7 @@ function putApiOrderStatus(id,status){
             "id": id,
             "paid": !status
         }
-    }
+    };
 
     axios.put(`${adminUrl}/orders`,itemObj,auth)
         .then(res => {
@@ -151,7 +151,6 @@ function getC3Data(data){
 
 // Order - render C3 chart
 function renderC3Chart(data){
-
     const chart = c3.generate({
         bindto: '#chart',
         data: {
