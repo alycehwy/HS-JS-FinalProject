@@ -17,7 +17,7 @@ function getApiOrderData(){
     axios.get(`${adminUrl}/orders`,auth)
         .then(res => {
             renderOrderList(res.data.orders);
-            getC3Data(res.data.orders);
+            renderC3Chart(res.data.orders);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
@@ -95,7 +95,7 @@ function delApiOrderItem(id){
     axios.delete(`${adminUrl}/orders/${id}`,auth)
         .then(res => {
             renderOrderList(res.data.orders);
-            renderC3Chart(res.data.orders)
+            renderC3Chart(res.data.orders);
             alert(`已成功刪除訂單：${id}`);
         })
         .catch(err => console.error(err.response.data.message || err.message));
@@ -146,16 +146,17 @@ function getC3Data(data){
         dataToC3.push(['其他',otherIncomeSum]);
     }
     
-    renderC3Chart(dataToC3);
+    return dataToC3;
 }
 
 // Order - render C3 chart
-function renderC3Chart(c3Data){
+function renderC3Chart(data){
+
     const chart = c3.generate({
         bindto: '#chart',
         data: {
             type: "pie",
-            columns: c3Data            
+            columns: getC3Data(data)            
         },
         color: {
             pattern: ['#301E5F','#5434A7','#9D7FEA','#DACBFF']

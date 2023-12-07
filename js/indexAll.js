@@ -20,14 +20,14 @@ function getApiProductData(){
     axios.get(`${customerUrl}/products`)
         .then(res => {
             productData = res.data.products
+            renderProductCategoryOption(productData);
             renderProductList(productData);
         })
         .catch(err => console.error(err.response.data.message || err.message));
 }
 
-// Product - render product list
-function renderProductList(data){
-    // create productSelect options
+// Product - render product categoty option
+function renderProductCategoryOption(data){
     // use Set to get category items => Each value can only occur once in a Set
     const categorySet = new Set();
     data.forEach(({category}) => categorySet.add(category));
@@ -43,8 +43,10 @@ function renderProductList(data){
     
     // make sure '全部' is default selected
     productSelect.querySelector(`[value="全部"]`).setAttribute('selected','');
-    
+}
 
+// Product - render product list
+function renderProductList(data){
     // create purchaseQty option html structure
     let purchaseQtyOption = '';
     for(let i = 1; i <= 10; i++){
