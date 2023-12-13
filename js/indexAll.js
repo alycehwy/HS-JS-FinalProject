@@ -193,6 +193,7 @@ function delApiCartItem(id){
 // Cart - delet all item from cart
 function delCartAll(event){
     event.preventDefault();
+    if(cartData === 0) return;
     delApiCartAll();
 }
 
@@ -217,7 +218,7 @@ function modifyCartItemQty(event){
     dataObj.action === 'plus' ? dataObj.qty++ : dataObj.qty-- ;
     // if qty is 0 => delete item
     // if not patch api for modify quantity and re-render cart list
-    qty === 0 ? delApiCartItem(dataObj.id) : patchApiCartItemQty(dataObj.id,dataObj.qty.qty);
+    dataObj.qty === 0 ? delApiCartItem(dataObj.id) : patchApiCartItemQty(dataObj.id,dataObj.qty);
 }
 
 // Cart - API - patch for cart item's quantity

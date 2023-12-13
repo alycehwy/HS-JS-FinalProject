@@ -25,7 +25,7 @@ function getApiOrderData(){
 // Order - render order list
 function renderOrderList(data){
     // data sort by time
-    data.sort((a,b) => a.createdAt - b.createdAt);
+    data.sort((a,b) => b.createdAt - a.createdAt);
 
     orderList.innerHTML = data.reduce((sum,item) => {
         const orderDate = new Date(item.createdAt * 1000).toLocaleDateString('en-ZA');
